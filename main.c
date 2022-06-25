@@ -57,12 +57,11 @@ int main( int argc, char* argv[] )
 
 	static bool state_new = false, word_new = false;
 
-	do
-	{
+	do {
 		read_char = fgetc( file_read );
 		if( feof( file_read ) ) break;
 		//
-		if( isalnum( read_char ) || read_char=='.' )
+		if( isalnum( read_char ) || read_char == '.' )
 		{
 			// char new
 			state_list[ state_ptr ].words[ word_ptr ].chars[ char_ptr ] = read_char;
@@ -87,12 +86,12 @@ int main( int argc, char* argv[] )
 				case ';':
 				case '\n':
 					{
-						if( state_list[ state_ptr ].words_size) state_new = true;
+						if( state_list[ state_ptr ].words_size ) state_new = true;
 						break;
 					}
 			}
 
-			if( state_list[ state_ptr ].words[ word_ptr ].chars_size) word_new = true;
+			if( state_list[ state_ptr ].words[ word_ptr ].chars_size ) word_new = true;
 		}
 
 		//
@@ -121,7 +120,7 @@ int main( int argc, char* argv[] )
 
 	for( int s = 0; s < state_ptr; ++s )
 	{
-		for( int w = 0; w < state_list[s].words_size; ++w )
+		for( int w = 0; w < state_list[ s ].words_size; ++w )
 		{
 			/*for( int t = 0; t < state_list[s].words[ w ].scope; ++t )
 			{
