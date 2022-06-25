@@ -3,13 +3,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#define debug
+//#define debug
 
 typedef struct word
 {
 		char chars[ 32 ];
 		unsigned int chars_size;
-		unsigned int scope;
 } word;
 static unsigned int words_total = 0;
 
@@ -17,11 +16,29 @@ typedef struct state
 {
 		word words[ 64 ];
 		unsigned int words_size;
+		unsigned int scope;
 } state;
 static unsigned int states_total = 0;
 
+//
+
+typedef struct keyword
+{
+		char chars[ 32 ];
+
+		bool check;
+		int check_pos;
+		char check_char;
+} keyword;
+static keyword keywords[ 128 ];
+
+//
+
 int main( int argc, char* argv[] )
 {
+
+	// init
+
 #ifdef debug
 	argc = 2;
 	argv[ 1 ] = "src.hept";
@@ -42,25 +59,73 @@ int main( int argc, char* argv[] )
 			printf( "alter requires the filename of the input source\n\te.g. ./alter game.hept\n" );
 			goto quit;
 		} else
-			printf( "\t _______\n\t/ alter \\\n\n\t// location:\n%s\n\t// input:\n%s\n\t// output:\n", argv[ 0 ], argv[ 1 ] );
+			printf( " _______\n/ alter \\\n\n// location:\n\t%s\n// input:\n\t%s\n", argv[ 0 ], argv[ 1 ] );
 	}
 
-	//
+	// read file
 
 	FILE* file_read = fopen( argv[ 1 ], "r" );
+
+	if( file_read == NULL )
+	{
+		printf( "alter cannot find the file" );
+		goto quit;
+	}
+
+	// extension
+
+	static char ext[ 16 ];
+	static unsigned int ext_ptr = 0;
+	for( int a = 0; a < strlen( argv[ 1 ] ); ++a )
+	{
+		static bool e = false;
+		static char c;
+		c = argv[ 1 ][ a ];
+		if( e ) ext[ ext_ptr++ ] = c;
+		if( c == '.' ) e = true;
+	}
+	printf( "// extension:\n\t%s\n", ext );
+	printf( "// looking for \"%s.alter\"...\n", ext );
+
+	// alter template
+
+	char* alter_filename = strcat( strdup( ext ), ".alter" );
+	FILE* alter_read = fopen( alter_filename, "r" );
+
+	if( alter_read == NULL )
+	{
+		printf( "!!!!!!!\nalter cannot find the \"%s.alter\" file\n!!!!!!!", ext );
+		goto quit;
+	}
+
+	do {
+		static char read_char;
+
+		read_char = fgetc( alter_read );
+		if( feof( alter_read ) ) break;
+
+		//
+		
+		
+
+	} while( 1 );
+
+	// process
 
 	static state state_list[ 128 ];
 	static unsigned int state_ptr = 0, word_ptr = 0, char_ptr = 0;
 
 	static int scope = 0, paren = 0;
-	static char read_char;
-
-	static bool state_new = false, word_new = false;
 
 	do {
+		static bool state_new = false, word_new = false;
+		static char read_char;
+
 		read_char = fgetc( file_read );
 		if( feof( file_read ) ) break;
+
 		//
+
 		if( isalnum( read_char ) || read_char == '.' )
 		{
 			// char new
@@ -99,7 +164,6 @@ int main( int argc, char* argv[] )
 		if( word_new )
 		{
 			words_total++;
-			state_list[ state_ptr ].words[ word_ptr ].scope = scope;
 			state_list[ state_ptr ].words_size++;
 			word_ptr++;
 			char_ptr = 0;
@@ -109,6 +173,7 @@ int main( int argc, char* argv[] )
 		if( state_new )
 		{
 			states_total++;
+			state_list[ state_ptr ].scope = scope;
 			state_ptr++;
 			word_ptr = 0;
 			char_ptr = 0;
@@ -120,12 +185,12 @@ int main( int argc, char* argv[] )
 
 	for( int s = 0; s < state_ptr; ++s )
 	{
+		for( int t = 0; t < state_list[ s ].scope; ++t )
+		{
+			printf( "\t" );
+		}
 		for( int w = 0; w < state_list[ s ].words_size; ++w )
 		{
-			/*for( int t = 0; t < state_list[s].words[ w ].scope; ++t )
-			{
-				printf( "\t" );
-			}*/
 			for( int c = 0; c < state_list[ s ].words[ w ].chars_size; ++c )
 			{
 				printf( "%c", state_list[ s ].words[ w ].chars[ c ] );

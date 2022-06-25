@@ -1,0 +1,21 @@
+scope entity
+{
+	obj player
+	{
+		num x = 4, y = 2;
+		dec r = 1.7;
+		list< duo< num, num > > pos_list;
+
+		fn bar( in a = 0, in b = 0 )
+		{
+			r += dec( a ) / dec( b );
+			out a + b;
+		}
+	};
+	list< unique( player ) > player_list;
+
+	fn foo()
+	{
+		player_list.add( unique_new( player ) );
+	}
+}
